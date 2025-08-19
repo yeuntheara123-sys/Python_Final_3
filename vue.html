@@ -1,0 +1,150 @@
+{% extends  'Front/master.html'%}
+
+{% block content %}
+                <div class="container-fluid">
+                <div class="row">
+                    <div class="col-8">
+                    <div class="card-body">
+            <div class="form-group">
+              <label>Name:</label>
+              <input v-model="name" type="text" name="name" class="form-control">
+            </div>
+            <div class="form-group">
+              <label>Gender:</label>
+              <select v-model="gender" name="gender" class="form-control">
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Age:</label>
+              <input v-model="age" type="number" name="age" class="form-control">
+            </div>
+
+            <input
+              type="button"
+              class="btn btn-danger"
+              value="Cancel"
+              @click="clearFrom()"
+            >
+
+            <div class="form-group">
+              <input
+                v-if="status === 'add'"
+                @click="saveRecord()"
+                type="button"
+                class="btn btn-primary"
+                value="Save"
+              >
+              <input
+                v-if="status === 'edit'"
+                @click="editRecord()"
+                type="button"
+                class="btn btn-warning"
+                value="Edit"
+              >
+            </div>
+            <!-- User list display -->
+            <table class="table" v-if="user_list.length">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Gender</th>
+                  <th>Age</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(user, index) in user_list" :key="index">
+                  <td>[[ user.name ]]</td>
+                  <td>[[ user.gender ]]</td>
+                  <td>[[ user.age ]]</td>
+                  <td>
+                    <button @click="getEdit(user, index)" class="btn btn-sm btn-info">Edit</button>
+                    <button @click="deleteRecord(index)" class="btn btn-sm btn-danger">Delete</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+        </div>
+        </div>
+    </div>
+    </div>
+{% endblock %}
+
+
+{% block custom_scrip %}
+	<script>
+const { createApp, ref } = Vue
+
+createApp({
+  delimiters: ['[[', ']]'],
+  data() {
+    return {
+      name: null,
+      gender: 'male',
+      age: null,
+      status: 'add',  // Fixed typo from stutus to status
+      edit_index: null,  // Fixed typo from edit_idex
+      user_list: JSON.parse(localStorage.getItem('user_list')) || [],
+      message: 'Hello Vue!'
+    }
+  },
+  methods: {
+    saveRecord() {
+      if (!this.name || !this.age) {
+        alert('Please fill all fields');
+        return;
+      }
+
+      this.user_list.push({
+        name: this.name,
+        gender: this.gender,
+        age: this.age,
+      })
+      localStorage.setItem('user_list', JSON.stringify(this.user_list))
+      this.clearFrom()
+    },
+    editRecord() {  // Changed to lowercase to match template
+      this.user_list[this.edit_index].name = this.name
+      this.user_list[this.edit_index].gender = this.gender
+      this.user_list[this.edit_index].age = this.age
+      localStorage.setItem('user_list', JSON.stringify(this.user_list))
+      this.clearFrom()
+    },
+    deleteRecord(index) {
+      Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.user_list.splice(index, 1)
+          localStorage.setItem('user_list', JSON.stringify(this.user_list))
+        }
+      });
+    },
+    getEdit(item, index) {
+      this.edit_index = index
+      this.status = 'edit'
+      this.name = item.name
+      this.gender = item.gender
+      this.age = item.age
+    },
+    clearFrom() {
+      this.name = null
+      this.gender = 'male'
+      this.age = null
+      this.edit_index = null
+      this.status = 'add'
+    }
+  }
+}).mount('#app')
+</script>
+{% endblock %}

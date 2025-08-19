@@ -1,0 +1,27 @@
+{% extends  'Front/master.html'%}
+{% block content %}
+    <div class="container mt-2 mb-2">
+    <div class="row">
+    <div class="container w-100 mt-3 px-4 py-3 bg-white">
+    <div class="product-grid">
+        {% for product in products %}
+        <div class="product-card">
+            <!-- Use the direct URL from the API -->
+            <img src="{{ product.image }}" alt="{{ product.title }}" class="product-image">
+            <div class="product-details">
+                <h3 class="product-title">{{ product.title }}</h3>
+                <p class="product-category text-muted">{{ product.category }}</p>
+                <p class="product-price">${{ "%.2f"|format(product.price) }}</p>
+                <a href="#" class="add-to-cart">Add to Cart</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+  </div>
+
+</div>
+
+{% endblock %}
+
